@@ -1,0 +1,52 @@
+.Chat {
+    display: flex;
+}
+
+.Chat-options {
+    height: 100vh;
+    width: 50px;
+    border: #BFBFBF;
+    border-right-width: 0.5px;
+    border-right-style: solid;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.Chat-icons {
+    /* fix the bug where the border moves the chat options area  */
+    width: 30px;
+    height: 30px;
+    padding: 0px 5px 0px 10px;
+}
+
+.Chat-icons:hover {
+    border-right-width: 3px;
+    border-right-color: #0D7DD6;
+    border-right-style: solid;
+}
+
+.Chat-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: auto;
+    background-color: #FAFAFA;
+}
+
+.Chat-rooms {
+    flex-basis: 18vw;
+    background-color: white;
+}
+
+.Chat-chat {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 88vw;
+}
+
+.Chat-chat-whatever {
+    margin-top: 10px;
+    height: 90vh;
+    overflow: auto;
+}

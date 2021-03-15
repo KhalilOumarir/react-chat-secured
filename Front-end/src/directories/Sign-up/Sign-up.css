@@ -1,0 +1,48 @@
+.Sign-Up {
+    background-image: url("../../images/sign-up-background.png");
+    background-size: 100vw 100vh;
+    height: 100vh;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.Sign-Up-container {
+    height: 80vh;
+    width: 40vw;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 4px 29px rgba(0, 0, 0, 0.5);
+    border-radius: 7px;
+    justify-content: space-evenly;
+}
+
+.Sign-Up-Title {
+    color: #1F2A3C;
+    align-self: flex-start;
+    margin-left: 40px;
+    margin-bottom: 0px;
+}
+
+.Sign-Up-form {
+    height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.Sign-Up-form-button {
+    background-color: #0962FF;
+    border-radius: 15px;
+    border-width: 0;
+    color: #FFF;
+    padding: 15px 30px;
+    box-shadow: 0px 4px 13px #01B5FF;
+    cursor: pointer;
+}
+
+.Sign-Up-form-buttonDiv {
+    align-self: flex-start;
+    margin-left: 35px;
+}

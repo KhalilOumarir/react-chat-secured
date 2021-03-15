@@ -1,0 +1,26 @@
+.OnlineCount {
+    width: 80vw;
+    background-color: #FFFFFF;
+    height: 10vh;
+    display: flex;
+    border-color: #BFBFBF;
+    border-width: 0.5px;
+    border-style: solid;
+}
+
+.OnlineCount-users-online-icon {
+    width: 40px;
+    height: 40px;
+    margin-left: 20px;
+}
+
+.OnlineCount-users-online-count {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.OnlineCount-users-online-names {
+    margin-left: 20px;
+    overflow: hidden;
+    display: flex;
+}

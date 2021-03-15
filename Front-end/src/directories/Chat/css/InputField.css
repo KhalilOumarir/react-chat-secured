@@ -1,0 +1,39 @@
+.Chat-chat-input {
+    width: 60vw;
+    padding: 14px 14px;
+    border-color: rgba(0, 0, 0, 0.25);
+    border-width: 1px;
+    border-radius: 6px;
+    outline: none;
+    margin-left: 20px;
+    background-color: #EFEFEF;
+}
+
+.Chat-chat-input-submit {
+    background: none;
+    border: 0;
+}
+
+.Chat-chat-input-sendIcon {
+    width: 30px;
+    height: 30px;
+    position: relative;
+    right: 50px;
+    top: 10px;
+}
+
+.InputField {
+    display: flex;
+    align-items: center;
+    margin-left: 5vw;
+}
+
+.InputField-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.InputField-typingUsers {
+    margin-left: 10vw;
+}

@@ -1,0 +1,34 @@
+.Home {
+    height: 100vh;
+    width: 100vw;
+    background-image: url("../../images//Background-image.svg");
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.Home-home {
+    width: 80vw;
+    display: flex;
+    justify-content: space-between;
+}
+
+.Home-introduction {
+    align-self: center;
+    color: #FFFFFF;
+    font-size: 1.5em;
+    text-shadow: 0px 5px 20px rgba(0, 0, 0, 0.349);
+}
+
+.Home-introduction button {
+    background-color: #010D22;
+    color: #DBE8FE;
+    padding: 10px 40px;
+    border-radius: 20px;
+    border-width: 0px;
+    font-size: 1em;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.5);
+}

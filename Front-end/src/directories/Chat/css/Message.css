@@ -1,0 +1,22 @@
+.Message {
+    display: flex;
+    text-align: left;
+    align-items: center;
+    margin-left: 5vw;
+}
+
+.Message-hr {
+    border: 0;
+    background-color: #E8E8E8;
+    height: 0.5px;
+    width: 70vw;
+}
+
+.Message-message {
+    margin-left: 20px;
+}
+
+.Message-avatar {
+    margin-top: 20px;
+    align-self: flex-start;
+}
