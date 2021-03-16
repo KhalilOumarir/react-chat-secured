@@ -5,7 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import Avatar from '@material-ui/core/Avatar';
 import "./css/InputField.css"
 import {UsernameContext} from "../../contexts/userData.context";
-
+import axios from "axios";
 
 const InputField = (props) => {
 
@@ -19,12 +19,19 @@ const InputField = (props) => {
         setMessageInput(evt.target.value);
     }
 
-    const handleFormSubmit=(evt)=>{
+    const handleFormSubmit=async(evt)=>{
         evt.preventDefault();
         
-        socket.current.to(roomJoined).emit("messageSent",messageInput);
-
+        socket.current.emit("messageSent",messageInput);
+        const message=messageInput;
         setMessageInput("");
+        try {
+            const response=await axios.post("http://localhost:4000/api/chat",{message:message});
+            
+        } catch (error) {
+            console.log("there was an error ",error)
+        }
+        
     }
 
     return (
@@ -32,7 +39,7 @@ const InputField = (props) => {
             <div className="InputField" >
                 <Avatar alt="user-picture" src={UserPicture} />
                 <div>
-                <input value={messageInput} onChange={handleInputChange} className="Chat-chat-input" type="text" placeholder="Write a reply" />
+                <input  value={messageInput} onChange={handleInputChange} className="Chat-chat-input" type="text" placeholder="Write a reply" />
                 <button className="Chat-chat-input-submit" ><img className="Chat-chat-input-sendIcon" src={SubmitIcon} alt="" /></button>
                 </div>
                 

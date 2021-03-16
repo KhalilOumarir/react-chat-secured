@@ -9,7 +9,7 @@ const ChatRoom=(props)=>{
 
     const value=useContext(UsernameContext);
   
-    const [rooms,setRooms]=useState(["General Chat","Requests","News"])
+    const [rooms,setRooms]=useState(["GeneralChat","Requests","News"])
     
 
 
