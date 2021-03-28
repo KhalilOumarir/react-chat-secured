@@ -23,7 +23,7 @@ const Chat = () => {
     
    
     const [messagesDisplay,setMessagesDisplay]=useState([]);
-    const userName=(useContext(UsernameContext));
+    const value=(useContext(UsernameContext));
     const socketRef=useRef(socket);
     
     useEffect(()=>{
@@ -34,7 +34,7 @@ const Chat = () => {
         
     },[messagesDisplay])
 
-
+    
     
 
 

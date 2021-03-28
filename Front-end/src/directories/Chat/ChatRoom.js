@@ -12,7 +12,10 @@ const ChatRoom=(props)=>{
     const [rooms,setRooms]=useState(["GeneralChat","Requests","News"])
     
     useEffect(()=>{
+        //Default the user to a room when he joins
         socket.current.emit("change-room",{roomToJoin:rooms[0],roomToQuit:null});
+        //add the room joined to the context to use it later in other components
+        value[1].setRoomJoined(rooms[0]);
     },[])
 
     const handleChangeRoomClick=(evt)=>{

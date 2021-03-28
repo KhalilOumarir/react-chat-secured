@@ -35,7 +35,7 @@ connection.query('SELECT 1+1 AS solution ',(err,result,fields)=>{
 // app.use(mainRouter);
 app.use(bodyparser.json());
 app.use(cors());
-app.use(router);
+
 
 
 
@@ -52,8 +52,20 @@ app.post("/sign-up",(req,res)=>{
         console.log("user has been added");
     })
 })
+
+//sign in logic
+app.post("/sign-in",(req,res)=>{
+    console.log(req.body);
+})
+
+
 app.get("/",(req,res)=>{
     res.send({message:"connected"});
+})
+
+//store message in the database
+app.post("/chat",(req,res)=>{
+    console.log(req.body);
 })
 
 

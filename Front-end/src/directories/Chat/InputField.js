@@ -12,13 +12,13 @@ const InputField = (props) => {
     const {socket}=props;
 
     const [messageInput,setMessageInput]=useState("");
-    const {roomJoined,setRoomJoined}=useContext(UsernameContext);
+    const value=useContext(UsernameContext);
     const [typingUsernames,setTypingUsernames]=useState([]);
 
     useEffect(()=>{
         //this hook will initialise the listeners
         socket.current.on("user-has-typed", (usernames) => {
-            console.log(usernames);
+            
             setTypingUsernames(usernames);
         })
         socket.current.on("user-stopped-typing",(usernames)=>{
@@ -29,7 +29,7 @@ const InputField = (props) => {
 
     const handleInputChange=(evt)=>{
         setMessageInput(evt.target.value);
-        console.log(evt.target.value.length);
+        
         if(evt.target.value.length){
             //make the username dynamic because on listen , the server filters only to the names that don't exist
             //in the array of people who are typing
@@ -47,7 +47,7 @@ const InputField = (props) => {
         const message=messageInput;
         setMessageInput("");
         
-        axios.post("http://localhost:4000/api/chat",{message:message}).then(()=>console.log("posted a message in the Database"));
+        axios.post("http://localhost:4000/chat",{message:message,roomJoined:value[1].roomJoined},{timeout:6000}).then(()=>console.log("posted a message in the Database"));
         
     }
 

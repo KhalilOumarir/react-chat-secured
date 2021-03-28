@@ -5,7 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import { withStyles,makeStyles } from "@material-ui/styles";
 import SignUpIllustration from "../../images/icons&illustrations/Sign-up-illustration.png";
 import axios from 'axios';
-
+import {NavLink} from 'react-router-dom';
 
 const useStyles=makeStyles({
     inputFields: {
@@ -30,7 +30,7 @@ const SignUp = (props) => {
     const [username,setUsername]=useState("");
     const [password,setPassword]=useState("");
     const [email,setEmail]=useState("");
-
+    
 
 
     const handleSignUpSubmit=async(evt)=>{
@@ -61,7 +61,7 @@ const SignUp = (props) => {
                     
                 </section>
                 <h1 className="Sign-Up-Title" >Sign Up</h1>
-                <p  className="Sign-Up-Title">Already have an account ? <a href="#">Login In.</a> </p>
+                <p  className="Sign-Up-Title">Already have an account ? <NavLink to="/Sign-in" >Login In.</NavLink> </p>
                 <section  >
                     <form className="Sign-Up-form" onSubmit={handleSignUpSubmit} >
                         <div className="Sign-Up-details" >
