@@ -35,6 +35,10 @@ const Chat = () => {
     },[messagesDisplay])
 
 
+    
+
+
+
     const displayMessages=()=>{
         return (
             messagesDisplay.map((message)=>{
@@ -72,7 +76,7 @@ const Chat = () => {
                         {displayMessages()}
 
                     </div>
-                    <InputField socket={socketRef}  />
+                    <InputField  socket={socketRef} />
                     
                 </section>
 

@@ -1,4 +1,4 @@
-import React,{useState,useContext} from 'react';
+import React,{useState,useContext,useEffect} from 'react';
 import UserPicture from "../../images/Avatar-imgs/American.png";
 import SubmitIcon from "../../images/icons&illustrations/right-arrow.svg";
 import TextField from '@material-ui/core/TextField';
@@ -13,25 +13,51 @@ const InputField = (props) => {
 
     const [messageInput,setMessageInput]=useState("");
     const {roomJoined,setRoomJoined}=useContext(UsernameContext);
+    const [typingUsernames,setTypingUsernames]=useState([]);
+
+    useEffect(()=>{
+        //this hook will initialise the listeners
+        socket.current.on("user-has-typed", (usernames) => {
+            console.log(usernames);
+            setTypingUsernames(usernames);
+        })
+        socket.current.on("user-stopped-typing",(usernames)=>{
+            console.log(usernames);
+            setTypingUsernames(usernames);
+        })
+    },[])
 
     const handleInputChange=(evt)=>{
-        
         setMessageInput(evt.target.value);
+        console.log(evt.target.value.length);
+        if(evt.target.value.length){
+            //make the username dynamic because on listen , the server filters only to the names that don't exist
+            //in the array of people who are typing
+            socket.current.emit("user-is-typing",{username:"name1"});
+        }else{
+            socket.current.emit("user-stopped-typing", {username:"name1"});
+        }
     }
 
+    
     const handleFormSubmit=async(evt)=>{
         evt.preventDefault();
         
         socket.current.emit("messageSent",messageInput);
         const message=messageInput;
         setMessageInput("");
-        try {
-            const response=await axios.post("http://localhost:4000/api/chat",{message:message});
-            
-        } catch (error) {
-            console.log("there was an error ",error)
-        }
         
+        axios.post("http://localhost:4000/api/chat",{message:message}).then(()=>console.log("posted a message in the Database"));
+        
+    }
+
+    
+
+    const displayTypingUsers=()=>{
+        
+        return (
+            <p className="InputField-typingUsers" > {typingUsernames.length ? typingUsernames.map((typingUser)=>(`${typingUser},`))  : null } is typing... </p>
+        )
     }
 
     return (
@@ -44,7 +70,7 @@ const InputField = (props) => {
                 </div>
                 
             </div>
-            <p className="InputField-typingUsers" >Somebody is typing...</p>
+            {displayTypingUsers()}
         </form>
     )
 }
