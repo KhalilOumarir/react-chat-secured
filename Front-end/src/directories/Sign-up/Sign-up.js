@@ -5,7 +5,9 @@ import TextField from '@material-ui/core/TextField';
 import { withStyles,makeStyles } from "@material-ui/styles";
 import SignUpIllustration from "../../images/icons&illustrations/Sign-up-illustration.png";
 import axios from 'axios';
-import {NavLink} from 'react-router-dom';
+import {NavLink,Redirect} from 'react-router-dom';
+import validator from "validator";
+import ValidationSnackbar from "./validation-error-snackbar";
 
 const useStyles=makeStyles({
     inputFields: {
@@ -30,33 +32,74 @@ const SignUp = (props) => {
     const [username,setUsername]=useState("");
     const [password,setPassword]=useState("");
     const [email,setEmail]=useState("");
-    
+    const [errors,setErrors]=useState({passError:"",emailError:"",usernameError:"",other:""});
+    const [successfulRegistration,setSuccessfulRegistration]=useState("");
 
-
-    const handleSignUpSubmit=async(evt)=>{
+    const handleSignUpSubmit=(evt)=>{
         evt.preventDefault();
-        const result=await axios.post("http://localhost:4000/sign-up",{username,password,email},{timeout:6000});
+        const usernameValue=username;
+        const passwordValue=password;
+        const emailValue=email;
         setUsername("");
         setPassword("");
         setEmail("");
+        setErrors({...errors,other:""});
+        axios.post("http://localhost:4000/sign-up",{username:usernameValue
+        ,password:passwordValue,email:emailValue},{timeout:6000})
+        .then((result)=>{
+            setSuccessfulRegistration(result.data);
+        })
+        .catch((err)=>{
+            
+            if(err){
+                if(err.reponse){
+                    const {password,email,username,other}=err.response.data;
+                    setErrors({...errors,passError:password ? password:"", 
+                    emailError:email ? email:"",
+                    usernameError:username ? username:"" ,
+                    other:other ? other:""});
+                }
+            }
+        })
+       
+       
     }
 
     
     const handleUsernameValue=(evt)=>{
         setUsername(evt.target.value);
+        if((evt.target.value.length>=3 && evt.target.value.length<=20) ){
+            setErrors({...errors,usernameError:""});
+        }else{
+            setErrors({...errors,usernameError:"Username must be from 3 to 20 characters"});
+        }
     }
     const handlePasswordValue=(evt)=>{
         setPassword(evt.target.value);
+        if((evt.target.value.length>=5 && evt.target.value.length<=50) ){
+            setErrors({...errors,passError:""});
+        }else{
+            setErrors({...errors,passError:"Password must be from 5 to 50 characters"});
+        }
     }
     const handleEmailValue=(evt)=>{
         setEmail(evt.target.value);
+        if(!validator.isEmail(evt.target.value)){
+            setErrors({...errors,emailError:"Must be a valid email"});
+        }else{
+            setErrors({...errors,emailError:""});
+        }
     }
+
+
 
 
     return (
         <div className="Sign-Up" >
+            
             <div className="Sign-Up-container" >
-
+            {successfulRegistration.length ? <Redirect to={{pathname:"/sign-in",state:{successfulRegistration}}} />:null}
+                {errors.other.length ? <ValidationSnackbar msg={errors.other} type={"error"} /> : null}
                 <section className="Sign-Up-Title" >
                     
                 </section>
@@ -65,14 +108,27 @@ const SignUp = (props) => {
                 <section  >
                     <form className="Sign-Up-form" onSubmit={handleSignUpSubmit} >
                         <div className="Sign-Up-details" >
-                            <TextField className={classes.fields} value={username} onChange={handleUsernameValue}  id="filled-basic" label="Name" variant="filled" />
-                            <TextField className={classes.inputFields} value={email} onChange={handleEmailValue} id="filled-email" label="Email" variant="filled" type="email" />
+                            <TextField className={classes.passwordField} value={username} onChange={handleUsernameValue}  id="filled-basic" label="Name" variant="filled" 
+                            error={errors.usernameError.length ? true:false}
+                            helperText={errors.usernameError}
+                            />
+                           
                         </div>
                         <div>
-                            <TextField className={classes.passwordField} value={password} onChange={handlePasswordValue}  id="filled-password" label="Password" variant="filled" type="password" />
+                        <TextField className={classes.passwordField} value={email} onChange={handleEmailValue} id="filled-email" label="Email" variant="filled" type="email"
+                             error={errors.emailError.length ? true:false}
+                             helperText={errors.emailError}
+                            />
+                        </div>
+                        <div>
+                            <TextField className={classes.passwordField} value={password} onChange={handlePasswordValue}  id="filled-password" label="Password" variant="filled" type="password"
+                              error={errors.passError.length ? true:false}
+                              helperText={errors.passError}
+                            />
                         </div>
                         <div className="Sign-Up-form-buttonDiv">
-                            <button className="Sign-Up-form-button" >Create an account</button>
+                            <button 
+                            disabled={errors.passError.length || errors.emailError.length || errors.usernameError.length ? true:false} className="Sign-Up-form-button" >Create an account</button>
                         </div>
                     </form>
                 </section>

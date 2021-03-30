@@ -1,7 +1,7 @@
 // const mainRouter=require("./routers/mainRouter");
 require('dotenv/config');
 const bodyparser = require("body-parser");
-const mysql=require("mysql");
+const {validationResult}=require("express-validator");
 const cors = require("cors"); //learn more about cors and fix the issue where you need to use cors to be able to make api calls
 
 
@@ -9,64 +9,37 @@ const cors = require("cors"); //learn more about cors and fix the issue where yo
 const router = require("./routers/MessageRouter");
 const signUpRouter=require("./routers/sign-up-router");
 
+const connection=require("./database/mysql-connection");
+const signInRouter=require("./routers/sign-in-router");
+const chatRouter=require("./routers/chat-router");
 
 
 const app = require("express")();
-
-const connection=mysql.createConnection({
-    host:'localhost',
-    user:'root',
-    password:'password',
-    database:'chat_app'
-})
-
 
 connection.connect(()=>{
     console.log("connected");
 });
 
 
-connection.query('SELECT 1+1 AS solution ',(err,result,fields)=>{
-    if(err) throw err;
-    console.log(result);
-})
 
 
 // app.use(mainRouter);
 app.use(bodyparser.json());
 app.use(cors());
+app.use(signUpRouter);
+app.use(signInRouter);
+app.use(chatRouter);
 
 
 
 
 
-
-app.post("/sign-up",(req,res)=>{
-    console.log(req.body);
-    const data={username:req.body.username,
-    email:req.body.email,
-    pass:req.body.password}
-
-    connection.query("INSERT INTO users SET ? ",data,(error,results,fields)=>{
-        if(error) throw error
-        console.log("user has been added");
-    })
-})
-
-//sign in logic
-app.post("/sign-in",(req,res)=>{
-    console.log(req.body);
-})
 
 
 app.get("/",(req,res)=>{
     res.send({message:"connected"});
 })
 
-//store message in the database
-app.post("/chat",(req,res)=>{
-    console.log(req.body);
-})
 
 
 

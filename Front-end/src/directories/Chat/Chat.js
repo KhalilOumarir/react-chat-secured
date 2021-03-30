@@ -1,5 +1,6 @@
 import React,{useEffect,useRef,useState,useContext} from "react";
 import './Chat.css';
+import {Redirect} from "react-router-dom";
 import speechBubble from "../../images/icons&illustrations/speech-bubble.svg";
 import InputField from "./InputField";
 import Message from "./Message";
@@ -7,6 +8,9 @@ import OnlineCount from "./OnlineCount";
 import ChatRoom from "./ChatRoom";
 import io from "socket.io-client";
 import {UsernameContext} from "../../contexts/userData.context";
+import axios from "axios";
+
+
 
 var connectionOptions =  {
     "force new connection" : true,
@@ -18,15 +22,37 @@ var connectionOptions =  {
 
 const socket=io.connect('http://localhost:4000',connectionOptions);
 
-const Chat = () => {
+const Chat = (props) => {
 
     
    
     const [messagesDisplay,setMessagesDisplay]=useState([]);
-    const value=(useContext(UsernameContext));
-    const socketRef=useRef(socket);
     
+    const socketRef=useRef(socket);
+    const [JwtTokenError,setJwtTokenError]=useState("");
+    const value=(useContext(UsernameContext));
+    
+
     useEffect(()=>{
+        console.log(value);
+        axios.get("http://localhost:4000/chat",{
+            headers:{
+                "authToken":`Bearer ${window.localStorage.getItem("authToken") || ""}`
+            }
+        }).then(()=>{
+            console.log("sent");
+        })
+        .catch((err)=>{
+            // go to the sign in page  
+            setJwtTokenError(err.response.data);
+        })
+
+    },[])
+
+
+    useEffect(()=>{
+      
+
         socketRef.current.on("messageSent",(msg)=>{
             setMessagesDisplay([...messagesDisplay,msg]);
         })
@@ -52,7 +78,12 @@ const Chat = () => {
     return (
         // this is the container that holds all the elements in the chat page
         <div className="Chat" >
-            
+            {JwtTokenError.length ? <Redirect to={{
+                pathname:"/sign-in",
+                state:{
+                    JwtTokenError
+                }
+            }}  /> : null}
             <div className="Chat-options">
                 {/* this is the container that will hold the UI/UX for rooms,messages etc */}
                 <img className="Chat-icons" src={speechBubble} alt="" />

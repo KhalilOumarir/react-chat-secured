@@ -15,10 +15,9 @@ function App() {
     <UsernameProvider>
       <div className="App">
       <Switch>
-        
         <Route  exact path="/" render={(routerProps)=>(<Home {...routerProps} />)}  />
         <Route  exact path="/sign-up" render={()=>(<SignUp />)}  />
-        <Route exact path="/chat" render={()=>(<Chat />)} />
+        <Route exact path="/chat" render={(routerProps)=>(<Chat {...routerProps}/>)} />
         <Route exact path="/sign-in" render={(routerProps)=>(<SignIn {...routerProps} />)} />
       </Switch>
     </div>

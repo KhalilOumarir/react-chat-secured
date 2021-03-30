@@ -1,4 +1,4 @@
-import React,{useState,useEffect} from 'react';
+import React,{useState,useEffect,useContext} from 'react';
 import "../Sign-up/Sign-up.css";
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from "@material-ui/styles";
@@ -6,8 +6,13 @@ import LoginIllustration from "../../images/icons&illustrations/Login-illustrati
 import axios from 'axios';
 import {NavLink} from "react-router-dom";
 import validator from "validator";
-
-
+import Button from '@material-ui/core/Button';
+import Snackbar from '@material-ui/core/Snackbar';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+import Slide from '@material-ui/core/Slide';
+import {UsernameContext} from "../../contexts/userData.context";
+import ValidationSnackbar from '../Sign-up/validation-error-snackbar';
 
 
 const useStyles=makeStyles({
@@ -27,22 +32,73 @@ const useStyles=makeStyles({
     }
 });
 
-const SignIn=()=>{
+const SignIn=(props)=>{
+
+
+   
+
+
 
     const classes=useStyles();
 
-    
+    const value=useContext(UsernameContext);
+    const [jwtTokenError,setJwtTokenError]=useState("");
     const [password,setPassword]=useState({value:"",errorMsg:""});
     const [email,setEmail]=useState("");
-    const [errors,setErrors]=useState({passError:"",emailError:""});
+    const [errors,setErrors]=useState({passError:"",emailError:"",validationErrors:[]});
+    
+    useEffect(()=>{
+        
+         //checks if the user is already signed in , aka if he already has a valid auth token
+         axios.get("http://localhost:4000/chat",{headers:{"authToken":`Bearer ${window.localStorage.getItem("authToken") || ""}`}})
+         .then((result)=>{
+             console.log(result);
+             //user has a valid auth Token
+             props.history.push("/chat");
+         })
+         .catch((err)=>{
+             //user doesn't have a valid auth token so keep him in the sign in page
+               //checks if the user went to the chat before signing in , if he did , then an error will be shown here
+            if(props.location.state){
+                setJwtTokenError(props.location.state.JwtTokenError);
+            }
+           
+         })
+ 
+      
+
+       
+    },[])
+
 
     const handleSignUpSubmit=async(evt)=>{
         evt.preventDefault();
         const pass=password.value;
         const mail=email;
-        setPassword("");
+        setPassword({...password,value:""});
         setEmail("");
-        const result=await axios.post("http://localhost:4000/sign-in",{password:pass,email:mail},{timeout:6000});
+        
+        axios.post("http://localhost:4000/sign-in",{password:pass,email:mail},{
+           
+            timeout:6000})
+        .then((result)=>{
+            console.log(value[2])
+            window.localStorage.setItem("authToken",result.data.accessToken)
+            props.history.push("/chat");
+        })
+        .catch((err)=>{
+            
+          if(err){
+            if(err.response){
+                const {password,email}=err.response.data;
+                
+    
+                setErrors({...errors,passError:password ? password:"", emailError:email ? email:"" })
+              }
+          }
+        })
+       
+        
         
     }
 
@@ -51,7 +107,8 @@ const SignIn=()=>{
     const handlePasswordValue=(evt)=>{
         
         setPassword({...password,value:evt.target.value});
-        //error checking in the password
+        // error checking in the password
+
         if((evt.target.value.length>=4 && evt.target.value.length<=50) ){
             setErrors({...errors,passError:""});
         }else{
@@ -67,11 +124,26 @@ const SignIn=()=>{
         setEmail(evt.target.value);
     }
 
-
+ 
+    const displaySuccessRegistration=()=>{
+        if(props.location){
+            if(props.location.state){
+                return(
+                    <div>
+                        {props.location.state.successfulRegistration ? <ValidationSnackbar msg={`${props.location.state.successfulRegistration}`} type={"success"} />:null}
+                    </div>
+                )
+            }
+        }
+      
+    }
+    
+   
     return (
         <div className="Sign-Up" >
             <div className="Sign-Up-container" >
-
+                {displaySuccessRegistration()}
+                {jwtTokenError ? <ValidationSnackbar msg="Please sign in before trying to join the chat" type="error" />:null}
                 <section className="Sign-Up-Title" >
                     
                 </section>
@@ -80,7 +152,7 @@ const SignIn=()=>{
                 <section  >
                     <form className="Sign-Up-form" onSubmit={handleSignUpSubmit} >
                         <div className="Sign-Up-details" >
-                            <TextField className={classes.passwordField} value={email} onChange={handleEmailValue} id="filled-email" label="Email" variant="filled" type="email"
+                            <TextField className={classes.passwordField} value={email} onChange={handleEmailValue} id="filled-email" label="Email" variant="filled" type="text"
                             error={errors.emailError.length ? true:false}
                             helperText={errors.emailError}
                             />
