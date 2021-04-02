@@ -30,7 +30,7 @@ userValidators.validateEmail,(req,res)=>{
             else{
                 if(hashedPassword===results[0].pass){
                     console.log("password matches");
-                    const token=jwt.sign({email:email},"this is a secret key",{expiresIn:60});
+                    const token=jwt.sign({username:results[0].username},process.env.SECRET_KEY,{expiresIn:3600});
                     return res.json({accessToken:token});
                 }else{
                     console.log("password doesn't match.");

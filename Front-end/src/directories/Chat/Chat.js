@@ -16,23 +16,26 @@ var connectionOptions =  {
     "force new connection" : true,
     "reconnectionAttempts": "Infinity", 
     "timeout" : 10000,                  
-    "transports" : ["websocket"]
+    "transports" : ["websocket"],
+    "query":{
+        "authToken":window.localStorage.getItem("authToken")
+    }
 };
 
 
-const socket=io.connect('http://localhost:4000',connectionOptions);
 
+const socket=io.connect('http://localhost:4000',connectionOptions);
 const Chat = (props) => {
 
     
    
     const [messagesDisplay,setMessagesDisplay]=useState([]);
     
-    const socketRef=useRef(socket);
+    
     const [JwtTokenError,setJwtTokenError]=useState("");
     const value=(useContext(UsernameContext));
+    const socketRef=useRef(socket);
     
-
     useEffect(()=>{
         console.log(value);
         axios.get("http://localhost:4000/chat",{
@@ -41,15 +44,21 @@ const Chat = (props) => {
             }
         }).then(()=>{
             console.log("sent");
+            
         })
         .catch((err)=>{
-            // go to the sign in page  
-            setJwtTokenError(err.response.data);
+            if(err){
+                if(err.response){
+                     // go to the sign in page  
+                    setJwtTokenError(err.response.data);
+                }
+             
+            }
         })
-
+        
     },[])
-
-
+    
+    
     useEffect(()=>{
       
 
