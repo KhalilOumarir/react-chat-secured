@@ -1,17 +1,30 @@
-import React from 'react';
+import React,{useState,useEffect,useContext} from 'react';
 import PeopleCountIcon from "../../images/icons&illustrations/User-friends.svg";
 import "./css/OnlineCount.css";
+import {UsernameContext} from "../../contexts/userData.context";
+
+const OnlineCount = (props) => {
+
+    const value=useContext(UsernameContext);
+    const [count,setCount]=useState(0);
+
+    useEffect(()=>{
+        console.log(value[1].roomJoined);
+        props.socket.current.on(`users-online-${value[1].roomJoined}`,(number)=>{
+            
+            setCount(number);
+        })
+    },[value[1].roomJoined])
 
 
-const OnlineCount = () => {
     return (
         <div className="OnlineCount" >
             <section>
                 <img src={PeopleCountIcon} alt="" className="OnlineCount-users-online-icon" />
-                <p className="OnlineCount-users-online-count" >2</p>
+                <p className="OnlineCount-users-online-count" >{count}</p>
             </section>
             <section className="OnlineCount-users-online-names" >
-                <p>Online:</p>
+                <p>Online: </p>
                 <p>Mackenzie,Heinrich,Tomislava,Jūratė... </p>
             </section>
         </div>

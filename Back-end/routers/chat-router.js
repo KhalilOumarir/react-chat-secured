@@ -23,7 +23,7 @@ router.post("/chat",(req,res)=>{
     }
 })
 
-
+//check auth of user
 router.get("/chat",(req,res)=>{
     
     const authToken=req.headers.authtoken.split(" "); // so we can get the authtoken differently
@@ -33,6 +33,7 @@ router.get("/chat",(req,res)=>{
     
     try {
         const verified=jwt.verify(authToken[1],process.env.SECRET_KEY);
+        
     } catch (error) {
         return res.status(400).send("Token has expired");
     }
@@ -42,6 +43,7 @@ router.get("/chat",(req,res)=>{
     }
     
 })
+
 
 
 

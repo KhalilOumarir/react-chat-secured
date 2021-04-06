@@ -62,10 +62,18 @@ const Chat = (props) => {
     useEffect(()=>{
       
 
-        socketRef.current.on("messageSent",(msg)=>{
-            setMessagesDisplay([...messagesDisplay,msg]);
+        socketRef.current.on("messageSent",(data)=>{
+            
+            setMessagesDisplay([...messagesDisplay,data]);
         })
         
+        socketRef.current.on("previous-messages",(data)=>{
+            //remove all the messages displayed and assign it new ones 
+            
+            setMessagesDisplay([...data])
+            
+            
+        })
         
     },[messagesDisplay])
 
@@ -75,9 +83,10 @@ const Chat = (props) => {
 
 
     const displayMessages=()=>{
+        
         return (
-            messagesDisplay.map((message)=>{
-                return (<Message message={message} />)
+            messagesDisplay.map((data)=>{
+                return (<Message message={data.message} username={data.username} />)
             })
         )
     }
@@ -108,7 +117,7 @@ const Chat = (props) => {
                     {/* this is where the chat components are gonna be at */}
                     <div>
                         {/* this is where the amount of people that are online gonna be displayed */}
-                        <OnlineCount />
+                        <OnlineCount socket={socketRef} />
                     </div>
                     
                     <div className="Chat-chat-whatever" >

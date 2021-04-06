@@ -2,6 +2,7 @@ import Home from './directories/home/Home';
 import SignUp from './directories/Sign-up/Sign-up';
 import Chat from "./directories/Chat/Chat";
 import SignIn from "./directories/Sign-in/Sign-in";
+import UserEdit from "./directories/user-edit/UserEdit";
 import './App.css';
 import {Route,Switch,NavLink} from "react-router-dom";
 import UsernameProvider from "./contexts/userData.context";
@@ -19,6 +20,7 @@ function App() {
         <Route  exact path="/sign-up" render={()=>(<SignUp />)}  />
         <Route exact path="/chat" render={(routerProps)=>(<Chat {...routerProps}/>)} />
         <Route exact path="/sign-in" render={(routerProps)=>(<SignIn {...routerProps} />)} />
+        <Route exact path="/edit-user" render={(routerProps)=>(<UserEdit {...routerProps} />)} />
       </Switch>
     </div>
     </UsernameProvider>

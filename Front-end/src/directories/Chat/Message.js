@@ -7,7 +7,7 @@ import "./css/Message.css";
 
 const Message = (props) => {
 
-    const {message}=props;
+    const {message,username}=props;
 
     return (
         <>
@@ -15,7 +15,7 @@ const Message = (props) => {
             <div className="Message" >
 
                 <Avatar className="Message-avatar" src={UserPicture} alt="" />
-                <p className="Message-message" >{message}</p>
+                <p className="Message-message" >{username}: {message}</p>
             </div>
         </>
 
