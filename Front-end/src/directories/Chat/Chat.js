@@ -9,7 +9,7 @@ import ChatRoom from "./ChatRoom";
 import io from "socket.io-client";
 import {UsernameContext} from "../../contexts/userData.context";
 import axios from "axios";
-
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 
 var connectionOptions =  {
@@ -30,23 +30,24 @@ const Chat = (props) => {
     
    
     const [messagesDisplay,setMessagesDisplay]=useState([]);
-    
+    const [loading,setLoading]=useState(true);
     
     const [JwtTokenError,setJwtTokenError]=useState("");
     const value=(useContext(UsernameContext));
     const socketRef=useRef(socket);
     
-    useEffect(()=>{
-        console.log(value);
-        axios.get("http://localhost:4000/chat",{
-            headers:{
-                "authToken":`Bearer ${window.localStorage.getItem("authToken") || ""}`
-            }
-        }).then(()=>{
-            console.log("sent");
-            
-        })
-        .catch((err)=>{
+    useEffect(async()=>{
+        try {
+            const result=await axios.get("http://localhost:4000/chat",{
+                headers:{
+                    "authToken":`Bearer ${window.localStorage.getItem("authToken") || ""}`
+                }
+            })
+             //assign the username result to the username context so we can show it in the message displayed in the front-end user
+             value[0].setUsername(result.data.username)
+             //also set the the avatarImage context so we use it to send messages , instead of fetching the avatar data everytime
+             value[3].setAvatarImage(result.data.avatarImage.toString("base64"));
+        } catch (err) {
             if(err){
                 if(err.response){
                      // go to the sign in page  
@@ -54,13 +55,16 @@ const Chat = (props) => {
                 }
              
             }
-        })
+        }
+       
         
     },[])
     
     
     useEffect(()=>{
       
+        //confirms the message has been successfully sent , so make the text returns to its solid form
+        // socketRef.current.on("")
 
         socketRef.current.on("messageSent",(data)=>{
             
@@ -69,7 +73,7 @@ const Chat = (props) => {
         
         socketRef.current.on("previous-messages",(data)=>{
             //remove all the messages displayed and assign it new ones 
-            
+            console.log("got it ");
             setMessagesDisplay([...data])
             
             
@@ -77,16 +81,23 @@ const Chat = (props) => {
         
     },[messagesDisplay])
 
+    const addMessageToChat=(data)=>{
+        //when user submits a message,add it to his front-end with the fading effect
+        // const temp={message:data.message,username:value[0].username,fading:data.fading,avatarImage:value[3].avatarImage}
+        // setMessagesDisplay([...messagesDisplay,temp])
+        socketRef.current.emit("messageSent",{message:data.message,avatarImage:value[3].avatarImage});
+    }
     
     
-
 
 
     const displayMessages=()=>{
         
         return (
-            messagesDisplay.map((data)=>{
-                return (<Message message={data.message} username={data.username} />)
+            messagesDisplay.map((data,index)=>{
+               
+                return (<Message message={data.message} username={data.username} socket={socketRef}  fading={data.fading ? true:false}
+                avatarImage={data.avatarImage ? data.avatarImage : ""}/>)
             })
         )
     }
@@ -95,7 +106,8 @@ const Chat = (props) => {
 
     return (
         // this is the container that holds all the elements in the chat page
-        <div className="Chat" >
+        <>
+         <div className="Chat" >
             {JwtTokenError.length ? <Redirect to={{
                 pathname:"/sign-in",
                 state:{
@@ -125,12 +137,13 @@ const Chat = (props) => {
                         {displayMessages()}
 
                     </div>
-                    <InputField  socket={socketRef} />
+                    <InputField  socket={socketRef} addMessageToChat={addMessageToChat} />
                     
                 </section>
 
             </div>
         </div>
+        </>
     )
 }
 

@@ -4,6 +4,8 @@ const bodyparser = require("body-parser");
 const {validationResult}=require("express-validator");
 const cors = require("cors"); //learn more about cors and fix the issue where you need to use cors to be able to make api calls
 const jwt=require("jsonwebtoken");
+const validator=require("validator");
+const sharp=require("sharp");
 
 
 const router = require("./routers/MessageRouter");
@@ -62,6 +64,13 @@ io.use((socket,next)=>{
 })
 
 io.on('connection', socket => {
+
+    const sanitize=data=>{
+        return validator.escape(data);
+    }
+
+
+
     //show 4 random users in the room
     console.log("Client has been connected");
     let joinedRoom = "";
@@ -75,14 +84,27 @@ io.on('connection', socket => {
     //on user send message 
     socket.on("messageSent", (data) => {
         
-        io.to(joinedRoom).emit("messageSent", {message:data,username:username});
+        //add the message to the DB , when it is successfully has been sent 
+        connection.query("INSERT INTO chat SET ?",{from_user:username,message:sanitize(data.message),room_sent_to:sanitize(joinedRoom)},(errors,results,fields)=>{
+            if(errors)console.log("there has been an error in inserting the message into the chat");
+            else{
+                //successfully saved the message into the db
+                
+                //send an emit to show the messages to all the users ,
+                io.to(joinedRoom).emit("messageSent", {message:sanitize(data.message),username:username,avatarImage:data.avatarImage});
+                // and send an emit to the socket only with the fading to false so it turns to solid indicating that the message has successfully been sent and stored in the db
+                socket.emit("message-successfully-sent",false);
+            }
+        })
+        
+        
 
     })
 
     //on user change room
     socket.on("change-room", ({ roomToJoin, roomToQuit}) => {
         
-       
+        
         if(roomToJoin!==joinedRoom){
             if (roomToQuit) {
                 socket.leave(roomToQuit);
@@ -108,23 +130,54 @@ io.on('connection', socket => {
                 })
                 
                 //display all the 50 last messages from the database to the front-end(but now its all the messages)
-                connection.query("SELECT from_user,message FROM chat WHERE room_sent_to=?",[joinedRoom],(errors,results,fields)=>{
+                connection.query("SELECT from_user,message,avatar FROM chat JOIN users ON users.username=chat.from_user WHERE room_sent_to=? GROUP BY from_user",[sanitize(joinedRoom)],(errors,results,fields)=>{
                     if(errors) console.log("Couldn't fetch the messages in the room: ",joinedRoom);
                     else{
-                        const data=[];
+                        const dataToSend=[];
+                        
                         //send the messages to the front-end
                         if(results.length){
-                            //send an array of messages in one call
-                            
-                            
+                            const imagesData=[]
                             for(let result of results){
-                                data.push({message:result.message,username:result.from_user});
+                                let avatar="";
+                                if(result.avatar){
+                                    sharp(`./uploads/${result.avatar}`).resize(200,200).toBuffer((err,data,info)=>{
+                                        imagesData.push({from_user:result.from_user,avatarImage:data.toString("base64")})
+                                    })
+                                }else{
+                                    imagesData.push({from_user:result.from_user,avatarImage:avatar})
+                                }
+                                
                                 
                             }
+                           connection.query("SELECT from_user,message FROM chat WHERE room_sent_to=? LIMIT 50",[sanitize(joinedRoom)],(secondError,secondResults,secondFields)=>{
+                            if(secondError) console.log("Couldn't fetch the messages in the room: ",joinedRoom);
+                            else{
+                                if(secondResults.length){
+                                    
+                                    for(let result of secondResults){
+                                        imagesData.forEach((data)=>{
+                                            if(result.from_user==data.from_user){
+                                                dataToSend.push({message:result.message,
+                                                username:result.from_user,
+                                                avatarImage:data.avatarImage});
+                                            }
+                                            
+                                        })
+                                    }
+                                    //send an array of messages in one call to the user , not to all the ones who are joined
+                            
+                                    socket.emit("previous-messages",dataToSend)
+                                }
+                               
+                            }
+                            
+                           })
+                            
                             
                             
                         }
-                        io.to(joinedRoom).emit("previous-messages",data)
+                        
                     }
                 })
             }
@@ -186,6 +239,7 @@ io.on('connection', socket => {
             if(error) console.log("error while trying to delete the user from sessions DB");
             else{
                 console.log("user has been deleted from the sessions DB ");
+                updateExistingUserSession(joinedRoom,username,io);
             }
         })
     })

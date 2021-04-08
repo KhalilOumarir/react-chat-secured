@@ -13,12 +13,12 @@ const InputField = (props) => {
 
     
 
-    const {socket}=props;
+    const {socket,addMessageToChat}=props;
 
     const [messageInput,setMessageInput]=useState("");
     const value=useContext(UsernameContext);
     const [typingUsernames,setTypingUsernames]=useState([]);
-
+    const imageData=value[3].avatarImage;
     useEffect(()=>{
         //this hook will initialise the listeners
         socket.current.on("user-has-typed", (usernames) => {
@@ -47,11 +47,15 @@ const InputField = (props) => {
     const handleFormSubmit=async(evt)=>{
         evt.preventDefault();
         
-        socket.current.emit("messageSent",messageInput);
+        
         const message=messageInput;
         setMessageInput("");
         
-        axios.post("http://localhost:4000/chat",{message:message,roomJoined:value[1].roomJoined,fromUser:window.localStorage.getItem("authToken")},{timeout:6000}).then(()=>console.log("posted a message in the Database"));
+        addMessageToChat({message:message,fading:true});
+
+        //notify that the user has stopped typing
+        socket.current.emit("user-stopped-typing", {usernameToken:window.localStorage.getItem("authToken")});
+        
         
     }
 
@@ -67,7 +71,10 @@ const InputField = (props) => {
     return (
         <form onSubmit={handleFormSubmit}  className="InputField-form" >
             <div className="InputField" >
-                <Avatar  alt="user-picture" src={UserPicture} />
+                
+                <Avatar  alt="user-picture" src={imageData ? `data:image/jpeg;base64,${imageData}`:null} >
+                    {imageData ? null : value[0].username[0]}
+                </Avatar>
                 <div>
                 <input  value={messageInput} onChange={handleInputChange} className="Chat-chat-input" type="text" placeholder="Write a reply" />
                 <button className="Chat-chat-input-submit" ><img className="Chat-chat-input-sendIcon" src={SubmitIcon} alt="" /></button>

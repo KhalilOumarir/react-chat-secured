@@ -6,7 +6,7 @@ const getUsersOnline = (io) => {
     connection.query(`SELECT COUNT(room_inside) AS users_in_room,room_inside AS rooms FROM sessions GROUP BY room_inside`, (errors, results, fields) => {
         if (errors) console.log("there was an error when trying to fetch all the users that are connected to a room ", errors)
         else {
-
+            
             // if(results.length){
             //     io.to(roomToQuit).emit("users-online",results[0].users_in_room);
             //     io.to(roomToJoin).emit("users-online",results[0].users_in_room);
