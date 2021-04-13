@@ -15,7 +15,7 @@ const connection=require("./database/mysql-connection");
 const signInRouter=require("./routers/sign-in-router");
 const chatRouter=require("./routers/chat-router");
 const userEditRouter=require("./routers/user-edit");
-const {addUserToDBSession,updateExistingUserSession,getUsersOnline} = require("./helpers/sql-helpers");
+const {addUserToDBSession,updateExistingUserSession,showRandomOnlineUsers} = require("./helpers/sql-helpers");
 
 const app = require("express")();
 
@@ -69,6 +69,7 @@ io.on('connection', socket => {
         return validator.escape(data);
     }
 
+    
 
 
     //show 4 random users in the room
@@ -81,10 +82,14 @@ io.on('connection', socket => {
     } catch (error) {
         
     }
+
+    
+
+
     //on user send message 
     socket.on("messageSent", (data) => {
         
-        //add the message to the DB , when it is successfully has been sent 
+        // add the message to the DB , when it is successfully has been sent 
         connection.query("INSERT INTO chat SET ?",{from_user:username,message:sanitize(data.message),room_sent_to:sanitize(joinedRoom)},(errors,results,fields)=>{
             if(errors)console.log("there has been an error in inserting the message into the chat");
             else{
@@ -96,7 +101,6 @@ io.on('connection', socket => {
                 socket.emit("message-successfully-sent",false);
             }
         })
-        
         
 
     })
@@ -112,6 +116,7 @@ io.on('connection', socket => {
             if (roomToJoin) {
                 joinedRoom = roomToJoin;
                 socket.join(roomToJoin);
+                
                 //validate the rooms before you make em join , also the username
                 //get the user that is in the previous room , and assign him to the nw room
                 connection.query(`SELECT * FROM sessions WHERE user_in_session='${username}'`,
@@ -125,6 +130,7 @@ io.on('connection', socket => {
                         }else{
                             updateExistingUserSession(roomToJoin,username,io);
                         }
+                        showRandomOnlineUsers(io,joinedRoom);
                        
                     }
                 })
@@ -153,6 +159,7 @@ io.on('connection', socket => {
                            connection.query("SELECT from_user,message FROM chat WHERE room_sent_to=? LIMIT 50",[sanitize(joinedRoom)],(secondError,secondResults,secondFields)=>{
                             if(secondError) console.log("Couldn't fetch the messages in the room: ",joinedRoom);
                             else{
+                                
                                 if(secondResults.length){
                                     
                                     for(let result of secondResults){
@@ -168,6 +175,7 @@ io.on('connection', socket => {
                                     //send an array of messages in one call to the user , not to all the ones who are joined
                             
                                     socket.emit("previous-messages",dataToSend)
+                                    console.log(dataToSend.length);
                                 }
                                
                             }
@@ -176,6 +184,9 @@ io.on('connection', socket => {
                             
                             
                             
+                        }else{
+                            
+                            socket.emit("previous-messages",[])
                         }
                         
                     }
@@ -184,7 +195,7 @@ io.on('connection', socket => {
         }
        
 
-      
+        
         
         console.log("user just changed rooms to ", joinedRoom);
     })
@@ -240,6 +251,7 @@ io.on('connection', socket => {
             else{
                 console.log("user has been deleted from the sessions DB ");
                 updateExistingUserSession(joinedRoom,username,io);
+                showRandomOnlineUsers(io,joinedRoom);
             }
         })
     })

@@ -3,14 +3,13 @@ import './Chat.css';
 import {Redirect} from "react-router-dom";
 import speechBubble from "../../images/icons&illustrations/speech-bubble.svg";
 import InputField from "./InputField";
-import Message from "./Message";
 import OnlineCount from "./OnlineCount";
 import ChatRoom from "./ChatRoom";
 import io from "socket.io-client";
 import {UsernameContext} from "../../contexts/userData.context";
 import axios from "axios";
 import CircularProgress from '@material-ui/core/CircularProgress';
-
+import MessageContainer from "./MessagesContainer";
 
 var connectionOptions =  {
     "force new connection" : true,
@@ -35,8 +34,10 @@ const Chat = (props) => {
     const [JwtTokenError,setJwtTokenError]=useState("");
     const value=(useContext(UsernameContext));
     const socketRef=useRef(socket);
+    const [messageSent,setMessageSent]=useState();
     
     useEffect(async()=>{
+        
         try {
             const result=await axios.get("http://localhost:4000/chat",{
                 headers:{
@@ -57,8 +58,13 @@ const Chat = (props) => {
             }
         }
        
+
+        return ()=>{
+            socketRef.current.emit("disconnect");
+            socketRef.current.off();
+        }
         
-    },[])
+    },[props.history])
     
     
     useEffect(()=>{
@@ -66,47 +72,48 @@ const Chat = (props) => {
         //confirms the message has been successfully sent , so make the text returns to its solid form
         // socketRef.current.on("")
 
-        socketRef.current.on("messageSent",(data)=>{
-            
-            setMessagesDisplay([...messagesDisplay,data]);
-        })
-        
+       
         socketRef.current.on("previous-messages",(data)=>{
             //remove all the messages displayed and assign it new ones 
-            console.log("got it ");
+            
             setMessagesDisplay([...data])
             
             
         })
+
         
-    },[messagesDisplay])
+        
+    },[])
+
+    const [avatarImages,setAvatarImages]=useState(1);
+    useEffect(()=>{
+        socketRef.current.on("messageSent",(data)=>{
+            console.log("message received");
+            setMessagesDisplay(messagesDisplay=>[...messagesDisplay,{message:data.message,username:data.username,avatarImage:data.avatarImage}]);
+            
+        })
+    },[])
+  
+   
+
 
     const addMessageToChat=(data)=>{
         //when user submits a message,add it to his front-end with the fading effect
         // const temp={message:data.message,username:value[0].username,fading:data.fading,avatarImage:value[3].avatarImage}
         // setMessagesDisplay([...messagesDisplay,temp])
         socketRef.current.emit("messageSent",{message:data.message,avatarImage:value[3].avatarImage});
-    }
-    
-    
-
-
-    const displayMessages=()=>{
         
-        return (
-            messagesDisplay.map((data,index)=>{
-               
-                return (<Message message={data.message} username={data.username} socket={socketRef}  fading={data.fading ? true:false}
-                avatarImage={data.avatarImage ? data.avatarImage : ""}/>)
-            })
-        )
     }
-  
+    
+    
+
+
   
 
     return (
         // this is the container that holds all the elements in the chat page
         <>
+        
          <div className="Chat" >
             {JwtTokenError.length ? <Redirect to={{
                 pathname:"/sign-in",
@@ -132,11 +139,7 @@ const Chat = (props) => {
                         <OnlineCount socket={socketRef} />
                     </div>
                     
-                    <div className="Chat-chat-whatever" >
-                        {/* this is where the messages gonna be displayed */}
-                        {displayMessages()}
-
-                    </div>
+                    <MessageContainer messagesDisplay={messagesDisplay} socketRef={socketRef} />
                     <InputField  socket={socketRef} addMessageToChat={addMessageToChat} />
                     
                 </section>

@@ -30,19 +30,35 @@ const Message = (props) => {
         
     },[])
 
-   
+    const displayMessages=()=>{
+        if(username){
+            return (
+                <section className={faded ? classes.fade : classes.solid} >
+                    <hr className="Message-hr"/>
+                    <div className="Message" >
+                        
+                    <Avatar className="Message-avatar" src={props.avatarImage ? `data:image/jpeg;base64,${(props.avatarImage)}`:null} alt="" >
+                            {props.avatarImage ?null:username[0]}</Avatar>
+                        <p className="Message-message" >{username}: {message}</p>
+                    </div>
+                </section>
+        
+            )
+        }
+        else{
+            return (
+                <section className={faded ? classes.fade : classes.solid} >
+                    <div className="Message" >
+                        <p className="Message-message sameUser" > {message}</p>
+                    </div>
+                </section>
+        
+            )
+        }
+    }
 
     return (
-        <section className={faded ? classes.fade : classes.solid} >
-            <hr className="Message-hr"/>
-            <div className="Message" >
-                
-                <Avatar className="Message-avatar" src={props.avatarImage ? `data:image/jpeg;base64,${(props.avatarImage)}`:null} alt="" >
-                    {props.avatarImage ?null:username[0]}</Avatar>
-                <p className="Message-message" >{username}: {message}</p>
-            </div>
-        </section>
-
+        displayMessages()
     )
 }
 

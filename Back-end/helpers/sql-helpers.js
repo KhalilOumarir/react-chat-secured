@@ -1,5 +1,5 @@
 const connection = require("../database/mysql-connection");
-
+const validator=require("validator");
 
 const getUsersOnline = (io) => {
     //sends an emit to all the users in a room with an update of the current users in session that is in that room
@@ -50,10 +50,34 @@ const updateExistingUserSession=(roomToJoin,username,io)=>{
 }
 
 
+const showRandomOnlineUsers=(io,joinedRoom)=>{
+    const sanitize=data=>{
+        return validator.escape(data);
+    }
+    
+    connection.query("SELECT user_in_session AS username from sessions where room_inside=? LIMIT 4",[sanitize(joinedRoom)],(error,results,fields)=>{
+        if(error) console.log("Couldn't fetch users in the chat room");
+        else{
+            console.log(results);
+            const data=[]
+            if(results.length){
+                for (let result of results){
+                    data.push(result.username)
+                }
+            }
+            io.to(sanitize(joinedRoom)).emit("random-online-users",data);
+        }
+    })
+}
+
+
+
+
 // export {updateExistingUserSession,getUsersOnline,addUserToDBSession}
 
 module.exports={
     updateExistingUserSession,
     getUsersOnline,
-    addUserToDBSession
+    addUserToDBSession,
+    showRandomOnlineUsers
 }
