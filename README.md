@@ -7,3 +7,5 @@
 ![](images/Screenshot_10.png)
 ![](images/Screenshot_7.png)
 
++ Database name : chat_app
++ Tables : chat,sessions,testing,users
