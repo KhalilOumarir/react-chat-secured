@@ -80,7 +80,7 @@ const Chat = (props) => {
             
             
         })
-
+        socketRef.current.on("bitch",(data)=>console.log(data));
         
         
     },[])
@@ -90,7 +90,7 @@ const Chat = (props) => {
         socketRef.current.on("messageSent",(data)=>{
             console.log("message received");
             setMessagesDisplay(messagesDisplay=>[...messagesDisplay,{message:data.message,username:data.username,avatarImage:data.avatarImage}]);
-            
+            setMessageSent(false);
         })
     },[])
   
@@ -102,7 +102,7 @@ const Chat = (props) => {
         // const temp={message:data.message,username:value[0].username,fading:data.fading,avatarImage:value[3].avatarImage}
         // setMessagesDisplay([...messagesDisplay,temp])
         socketRef.current.emit("messageSent",{message:data.message,avatarImage:value[3].avatarImage});
-        
+        setMessageSent(true);
     }
     
     
@@ -140,7 +140,7 @@ const Chat = (props) => {
                     </div>
                     
                     <MessageContainer messagesDisplay={messagesDisplay} socketRef={socketRef} />
-                    <InputField  socket={socketRef} addMessageToChat={addMessageToChat} />
+                    <InputField messageSent={messageSent} socket={socketRef} addMessageToChat={addMessageToChat} />
                     
                 </section>
 

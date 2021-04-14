@@ -13,7 +13,7 @@ const InputField = (props) => {
 
     
 
-    const {socket,addMessageToChat}=props;
+    const {socket,addMessageToChat,messageSent}=props;
 
     const [messageInput,setMessageInput]=useState("");
     const value=useContext(UsernameContext);
@@ -64,12 +64,12 @@ const InputField = (props) => {
     const displayTypingUsers=()=>{
         
         return (
-            <p className="InputField-typingUsers" > {typingUsernames.length ? typingUsernames.map((typingUser)=>(`${typingUser},`))  : null } is typing... </p>
+            <p className="InputField-typingUsers" > {typingUsernames.length ? typingUsernames.toString() + " is typing... "  : null } </p>
         )
     }
 
     return (
-        <form onSubmit={handleFormSubmit}  className="InputField-form" >
+        <form  onSubmit={handleFormSubmit}  className="InputField-form" >
             <div className="InputField" >
                 
                 <Avatar  alt="user-picture" src={imageData ? `data:image/jpeg;base64,${imageData}`:null} >
@@ -77,7 +77,7 @@ const InputField = (props) => {
                 </Avatar>
                 <div>
                 <input  value={messageInput} onChange={handleInputChange} className="Chat-chat-input" type="text" placeholder="Write a reply" />
-                <button className="Chat-chat-input-submit" ><img className="Chat-chat-input-sendIcon" src={SubmitIcon} alt="" /></button>
+                <button  className="Chat-chat-input-submit" ><img className="Chat-chat-input-sendIcon" src={SubmitIcon} alt="" /></button>
                 </div>
                 
             </div>

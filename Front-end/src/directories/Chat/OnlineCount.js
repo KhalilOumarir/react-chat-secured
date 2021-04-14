@@ -32,9 +32,7 @@ const OnlineCount = (props) => {
             </section>
             <section className="OnlineCount-users-online-names" >
                 <p>Online: </p>
-                <p>{onlineUsers.map((user)=>{
-                    return `${user},`
-                })}</p>
+                <p>{onlineUsers.toString()}</p>
             </section>
         </div>
     )

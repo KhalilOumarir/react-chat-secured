@@ -69,6 +69,7 @@ io.on('connection', socket => {
         return validator.escape(data);
     }
 
+    socket.broadcast.emit("bitch","you a bitch");
     
 
 
@@ -156,7 +157,7 @@ io.on('connection', socket => {
                                 
                                 
                             }
-                           connection.query("SELECT from_user,message FROM chat WHERE room_sent_to=? LIMIT 50",[sanitize(joinedRoom)],(secondError,secondResults,secondFields)=>{
+                           connection.query("SELECT from_user,message from (SELECT * from chat ORDER BY message_date DESC LIMIT 50)Var1 WHERE room_sent_to=? ORDER BY message_date ASC ",[sanitize(joinedRoom)],(secondError,secondResults,secondFields)=>{
                             if(secondError) console.log("Couldn't fetch the messages in the room: ",joinedRoom);
                             else{
                                 
