@@ -8,4 +8,8 @@
 ![](images/Screenshot_7.png)
 
 + Database name : chat_app
+<<<<<<< HEAD
 + Tables : chat,sessions,testing,users
+=======
++ Tables : chat,sessions,testing,users
+>>>>>>> 78e169411027d59be806e42092ae80d3519cc180
