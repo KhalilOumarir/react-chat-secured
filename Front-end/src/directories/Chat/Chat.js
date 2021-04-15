@@ -8,8 +8,9 @@ import ChatRoom from "./ChatRoom";
 import io from "socket.io-client";
 import {UsernameContext} from "../../contexts/userData.context";
 import axios from "axios";
-import CircularProgress from '@material-ui/core/CircularProgress';
 import MessageContainer from "./MessagesContainer";
+
+
 
 var connectionOptions =  {
     "force new connection" : true,
@@ -80,19 +81,33 @@ const Chat = (props) => {
             
             
         })
-        socketRef.current.on("bitch",(data)=>console.log(data));
+       
         
         
     },[])
 
-    const [avatarImages,setAvatarImages]=useState(1);
+    
     useEffect(()=>{
         socketRef.current.on("messageSent",(data)=>{
-            console.log("message received");
             setMessagesDisplay(messagesDisplay=>[...messagesDisplay,{message:data.message,username:data.username,avatarImage:data.avatarImage}]);
-            setMessageSent(false);
+            
+            
         })
     },[])
+
+    useEffect(()=>{
+        // if(value[0].username===data.username){
+        //     //if the user himself that sent the message then have it scroll all the way down
+           
+        // }
+        if((messagesDisplay[messagesDisplay.length-1])){
+            if(messagesDisplay[messagesDisplay.length-1].username===value[0].username){
+                setMessageSent(true);
+            }
+        }
+       
+        
+    },[messagesDisplay])
   
    
 
@@ -102,13 +117,11 @@ const Chat = (props) => {
         // const temp={message:data.message,username:value[0].username,fading:data.fading,avatarImage:value[3].avatarImage}
         // setMessagesDisplay([...messagesDisplay,temp])
         socketRef.current.emit("messageSent",{message:data.message,avatarImage:value[3].avatarImage});
-        setMessageSent(true);
+        
     }
     
     
 
-
-  
 
     return (
         // this is the container that holds all the elements in the chat page
@@ -139,8 +152,8 @@ const Chat = (props) => {
                         <OnlineCount socket={socketRef} />
                     </div>
                     
-                    <MessageContainer messagesDisplay={messagesDisplay} socketRef={socketRef} />
-                    <InputField messageSent={messageSent} socket={socketRef} addMessageToChat={addMessageToChat} />
+                    <MessageContainer setMessageSent={setMessageSent} messageSent={messageSent} messagesDisplay={messagesDisplay} socketRef={socketRef} />
+                    <InputField setMessageSent={setMessageSent}   socket={socketRef} addMessageToChat={addMessageToChat} />
                     
                 </section>
 

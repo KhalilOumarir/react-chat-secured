@@ -10,6 +10,11 @@
 }
 
 .Chat-chat-input-submit {
+    width: 30px;
+    height: 30px;
+    position: relative;
+    right: 50px;
+    top: 10px;
     background: none;
     border: 0;
 }
@@ -17,9 +22,6 @@
 .Chat-chat-input-sendIcon {
     width: 30px;
     height: 30px;
-    position: relative;
-    right: 50px;
-    top: 10px;
 }
 
 .InputField {

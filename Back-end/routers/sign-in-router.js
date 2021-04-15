@@ -24,6 +24,8 @@ userValidators.validateEmail,(req,res)=>{
         }
         res.status(400).send(sentErrors);
     }else{
+        //check if the user is already online , aka already has a session , but he will be able to enter if 
+        
         //Login Using sql and JWT
         connection.query("SELECT * FROM users WHERE  email=?",[email],(error,results,fields)=>{
             if(error) console.log("there has been an error : ",error);

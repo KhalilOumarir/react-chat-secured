@@ -1,16 +1,36 @@
-import React,{useState} from "react";
+import React,{useState,useEffect} from "react";
 import {v4 as uuid} from "uuid";
 import Message from "./Message";
 
-import { Link, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll'
+
+
 
 
 const MessageContainer=(props)=>{
-
+    const {setMessageSent,messageSent}=props;
+    const scrollRef = React.useRef(null);
+    
+  
     
     const {messagesDisplay,socketRef}=props;
     //checks who is the username who sent the last message 
-   
+    const scrollToBottom=()=>{
+        scrollRef.current.scrollTop=scrollRef.current.scrollHeight;
+        
+    }
+    useEffect(()=>{
+        if(messageSent){
+            scrollToBottom()
+            setMessageSent(false)
+        }
+        
+    },[messageSent])
+    
+    useEffect(()=>{
+        if(scrollRef.current.scrollTop!==scrollRef.current.scrollHeight){
+            console.log("show icon");
+        }
+    },[messagesDisplay])
 
     const displayMessages=()=>{
         
@@ -23,13 +43,13 @@ const MessageContainer=(props)=>{
                     lastMsgUsername=messagesDisplay[index-1].username;
                 }
                 if(data.username==lastMsgUsername){
-                    console.log("same username");
+                    
                     return (<Message  key={uuid()} message={data.message} username={null} socket={socketRef}  fading={data.fading ? true:false}
                     avatarImage={data.avatarImage ? data.avatarImage : ""}/>
                     )
                 }
                 else{
-                    console.log("not the same username");
+                    
                     return (<Message  key={uuid()} message={data.message} username={data.username} socket={socketRef}  fading={data.fading ? true:false}
                     avatarImage={data.avatarImage ? data.avatarImage : ""}/>)
                 }
@@ -39,18 +59,16 @@ const MessageContainer=(props)=>{
     }
 
 
-    const scrollToBottom=()=>{
-        scroll.scrollToBottom()
-    }
-  
+   
+
     return(
-        <div className="Chat-chat-whatever">
+        <div className="Chat-chat-whatever"  ref={scrollRef}>
             {/* this is where the messages gonna be displayed */}
             
             
             {displayMessages()}
             
-           
+            
 
         </div>
     )

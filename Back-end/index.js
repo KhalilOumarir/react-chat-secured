@@ -65,13 +65,28 @@ io.use((socket,next)=>{
 
 io.on('connection', socket => {
 
-    const sanitize=data=>{
-        return validator.escape(data);
+    function sanitize (data){
+        this.data=data
     }
 
-    socket.broadcast.emit("bitch","you a bitch");
+    sanitize.prototype={
+        
+        trim:function(){
+            this.data=validator.trim(this.data);
+            return this;
+        },
+        escape:function(){
+            this.data=validator.escape(this.data);
+            return this;
+        },
+        length:function(min,max){
+            this.length=validator.isLength(this.data,{min,max})
+            return this;
+        }
+    }
     
-
+    
+    
 
     //show 4 random users in the room
     console.log("Client has been connected");
@@ -89,34 +104,48 @@ io.on('connection', socket => {
 
     //on user send message 
     socket.on("messageSent", (data) => {
+        const sanitization=new sanitize(data.message);
+        const msg=sanitization.trim().escape().length(1,400);
         
-        // add the message to the DB , when it is successfully has been sent 
-        connection.query("INSERT INTO chat SET ?",{from_user:username,message:sanitize(data.message),room_sent_to:sanitize(joinedRoom)},(errors,results,fields)=>{
-            if(errors)console.log("there has been an error in inserting the message into the chat");
-            else{
-                //successfully saved the message into the db
-                
-                //send an emit to show the messages to all the users ,
-                io.to(joinedRoom).emit("messageSent", {message:sanitize(data.message),username:username,avatarImage:data.avatarImage});
-                // and send an emit to the socket only with the fading to false so it turns to solid indicating that the message has successfully been sent and stored in the db
-                socket.emit("message-successfully-sent",false);
-            }
-        })
-        
+        if(msg.length){
+            // add the message to the DB , when it is successfully has been sent 
+                connection.query("INSERT INTO chat SET ?",{from_user:username,
+                    message:msg.data,
+                    room_sent_to:joinedRoom},(errors,results,fields)=>{
+                    if(errors)console.log("there has been an error in inserting the message into the chat");
+                        else{
+                    //successfully saved the message into the db
+                    
+                    //send an emit to show the messages to all the users ,
+                    io.to(joinedRoom).emit("messageSent", {message:msg.data,username:username,avatarImage:data.avatarImage});
+                    // and send an emit to the socket only with the fading to false so it turns to solid indicating that the message has successfully been sent and stored in the db
+                    socket.emit("message-successfully-sent",false);
+                    }
+                })
+        }else{
+            console.log("message has not been sent")
+        }
+       
 
     })
 
     //on user change room
     socket.on("change-room", ({ roomToJoin, roomToQuit}) => {
-        
+       
         
         if(roomToJoin!==joinedRoom){
             if (roomToQuit) {
-                socket.leave(roomToQuit);
+                const roomToJoinsanitization=new sanitize(roomToQuit);
+                const QuitRoom=roomToJoinsanitization.trim().escape();
+                socket.leave(QuitRoom.data);
             }
             if (roomToJoin) {
-                joinedRoom = roomToJoin;
-                socket.join(roomToJoin);
+                const roomToJoinsanitization=new sanitize(roomToJoin);
+                const JoinRoom=roomToJoinsanitization.trim().escape();
+                console.log(JoinRoom.data, roomToQuit)
+                
+                joinedRoom = JoinRoom.data;
+                socket.join(JoinRoom.data);
                 
                 //validate the rooms before you make em join , also the username
                 //get the user that is in the previous room , and assign him to the nw room
@@ -127,9 +156,9 @@ io.on('connection', socket => {
                     } 
                     else{
                         if(!results.length){
-                            addUserToDBSession(roomToJoin,username,io);
+                            addUserToDBSession(JoinRoom.data,username,io);
                         }else{
-                            updateExistingUserSession(roomToJoin,username,io);
+                            updateExistingUserSession(JoinRoom.data,username,io);
                         }
                         showRandomOnlineUsers(io,joinedRoom);
                        
@@ -137,7 +166,7 @@ io.on('connection', socket => {
                 })
                 
                 //display all the 50 last messages from the database to the front-end(but now its all the messages)
-                connection.query("SELECT from_user,message,avatar FROM chat JOIN users ON users.username=chat.from_user WHERE room_sent_to=? GROUP BY from_user",[sanitize(joinedRoom)],(errors,results,fields)=>{
+                connection.query("SELECT from_user,message,avatar FROM chat JOIN users ON users.username=chat.from_user WHERE room_sent_to=? GROUP BY from_user",[(joinedRoom)],(errors,results,fields)=>{
                     if(errors) console.log("Couldn't fetch the messages in the room: ",joinedRoom);
                     else{
                         const dataToSend=[];
@@ -157,7 +186,7 @@ io.on('connection', socket => {
                                 
                                 
                             }
-                           connection.query("SELECT from_user,message from (SELECT * from chat ORDER BY message_date DESC LIMIT 50)Var1 WHERE room_sent_to=? ORDER BY message_date ASC ",[sanitize(joinedRoom)],(secondError,secondResults,secondFields)=>{
+                           connection.query("SELECT from_user,message from (SELECT * from chat ORDER BY message_date DESC LIMIT 50)Var1 WHERE room_sent_to=? ORDER BY message_date ASC ",[(joinedRoom)],(secondError,secondResults,secondFields)=>{
                             if(secondError) console.log("Couldn't fetch the messages in the room: ",joinedRoom);
                             else{
                                 
