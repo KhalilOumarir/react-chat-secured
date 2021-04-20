@@ -12,7 +12,7 @@ const upload=multer({dest:'uploads/'
 
 
 
-router.post("/edit-user",upload.single("avatarImage"),(req,res)=>{
+router.post("/api/edit-user",upload.single("avatarImage"),(req,res)=>{
     
     
 

@@ -6,6 +6,11 @@ import {UsernameContext} from "../../contexts/userData.context";
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import IconButton from '@material-ui/core/IconButton';
 import {makeStyles} from '@material-ui/styles'
+import Badge from '@material-ui/core/Badge';
+
+
+
+
 const useStyles=makeStyles({
     icon:{
         color:"red",
@@ -17,12 +22,15 @@ const InputField = (props) => {
 
     const classes=useStyles();
 
-    const {socket,addMessageToChat,setMessageSent}=props;
+    const {socket,addMessageToChat,setMessageSent,messageSent,messagesCounter}=props;
 
     const [messageInput,setMessageInput]=useState("");
     const value=useContext(UsernameContext);
     const [typingUsernames,setTypingUsernames]=useState([]);
     const imageData=value[3].avatarImage;
+    
+
+
     useEffect(()=>{
         //this hook will initialise the listeners
         socket.current.on("user-has-typed", (usernames) => {
@@ -50,15 +58,17 @@ const InputField = (props) => {
     
     const handleFormSubmit=async(evt)=>{
         evt.preventDefault();
-        
-        
-        const message=messageInput;
-        setMessageInput("");
-        
-        addMessageToChat({message:message,fading:true});
-        
-        //notify that the user has stopped typing
-        socket.current.emit("user-stopped-typing", {usernameToken:window.localStorage.getItem("authToken")});
+        if(!messageSent){
+  
+            const message=messageInput;
+            setMessageInput("");
+            
+            addMessageToChat({message:message,fading:true});
+            
+            //notify that the user has stopped typing
+            socket.current.emit("user-stopped-typing", {usernameToken:window.localStorage.getItem("authToken")});
+        }
+      
         
         
     }
@@ -87,9 +97,13 @@ const InputField = (props) => {
                 <input  value={messageInput} onChange={handleInputChange} className="Chat-chat-input" type="text" placeholder="Write a reply" />
                 <button  className="Chat-chat-input-submit"><img className="Chat-chat-input-sendIcon" src={SubmitIcon} alt="" /></button>
                 </div>
-                <IconButton onClick={handleToBottomClick} >
+                
+                <Badge color="secondary" badgeContent={messagesCounter}>
+                    <IconButton onClick={handleToBottomClick} >
                     <KeyboardArrowDownIcon className={classes.icon} />
-                </IconButton>
+                    </IconButton>
+                </Badge>
+                
             </div>
             
             {displayTypingUsers()}

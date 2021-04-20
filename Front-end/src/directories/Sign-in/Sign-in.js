@@ -6,11 +6,7 @@ import LoginIllustration from "../../images/icons&illustrations/Login-illustrati
 import axios from 'axios';
 import {NavLink} from "react-router-dom";
 import validator from "validator";
-import Button from '@material-ui/core/Button';
-import Snackbar from '@material-ui/core/Snackbar';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import Slide from '@material-ui/core/Slide';
+
 import {UsernameContext} from "../../contexts/userData.context";
 import ValidationSnackbar from '../Sign-up/validation-error-snackbar';
 
@@ -50,7 +46,7 @@ const SignIn=(props)=>{
     useEffect(()=>{
         
          //checks if the user is already signed in , aka if he already has a valid auth token
-         axios.get("http://localhost:4000/chat",{headers:{"authToken":`Bearer ${window.localStorage.getItem("authToken") || ""}`}})
+         axios.get("/api/chat",{headers:{"authToken":`Bearer ${window.localStorage.getItem("authToken") || ""}`}})
          .then((result)=>{
              console.log(result);
              //user has a valid auth Token
@@ -78,7 +74,7 @@ const SignIn=(props)=>{
         setPassword({...password,value:""});
         setEmail("");
         
-        axios.post("http://localhost:4000/sign-in",{password:pass,email:mail},{
+        axios.post("/api/sign-in",{password:pass,email:mail},{
            
             timeout:6000})
         .then((result)=>{

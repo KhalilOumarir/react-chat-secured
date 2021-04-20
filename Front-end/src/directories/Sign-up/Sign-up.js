@@ -1,8 +1,7 @@
-import React,{useEffect,useState} from "react";
+import React,{useState} from "react";
 import "./Sign-up.css";
-import {createMuiTheme} from "@material-ui/core";
 import TextField from '@material-ui/core/TextField';
-import { withStyles,makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@material-ui/styles";
 import SignUpIllustration from "../../images/icons&illustrations/Sign-up-illustration.png";
 import axios from 'axios';
 import {NavLink,Redirect} from 'react-router-dom';
@@ -44,7 +43,7 @@ const SignUp = (props) => {
         setPassword("");
         setEmail("");
         setErrors({...errors,other:""});
-        axios.post("http://localhost:4000/sign-up",{username:usernameValue
+        axios.post("/api/sign-up",{username:usernameValue
         ,password:passwordValue,email:emailValue},{timeout:6000})
         .then((result)=>{
             setSuccessfulRegistration(result.data);

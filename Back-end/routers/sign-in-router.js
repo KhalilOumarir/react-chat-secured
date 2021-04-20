@@ -6,7 +6,7 @@ const crypto=require("crypto");
 const jwt=require("jsonwebtoken");
 
 //sign in logic
-router.post("/sign-in",userValidators.validatePassword,
+router.post("/api/sign-in",userValidators.validatePassword,
 userValidators.validateEmail,(req,res)=>{
     //make the hash more secure later on
     const hash=crypto.createHmac("sha256","secret key");

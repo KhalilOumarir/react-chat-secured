@@ -1,6 +1,5 @@
 import React,{useEffect,useState} from "react";
 import Avatar from '@material-ui/core/Avatar';
-import UserPicture from "../../images/Avatar-imgs/American.png";
 import "./css/Message.css";
 import {makeStyles} from "@material-ui/styles";
 

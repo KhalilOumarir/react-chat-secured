@@ -30,35 +30,37 @@ const Chat = (props) => {
     
    
     const [messagesDisplay,setMessagesDisplay]=useState([]);
-    const [loading,setLoading]=useState(true);
+    
     
     const [JwtTokenError,setJwtTokenError]=useState("");
     const value=(useContext(UsernameContext));
     const socketRef=useRef(socket);
     const [messageSent,setMessageSent]=useState();
-    
-    useEffect(async()=>{
-        
-        try {
-            const result=await axios.get("http://localhost:4000/chat",{
-                headers:{
-                    "authToken":`Bearer ${window.localStorage.getItem("authToken") || ""}`
+    const [messagesCounter,setMessagesCounter]=useState(0);
+    useEffect(()=>{
+        async function fetchData(){
+            try {
+                const result=await axios.get("/api/chat",{
+                    headers:{
+                        "authToken":`Bearer ${window.localStorage.getItem("authToken") || ""}`
+                    }
+                })
+                 //assign the username result to the username context so we can show it in the message displayed in the front-end user
+                 value[0].setUsername(result.data.username)
+                 //also set the the avatarImage context so we use it to send messages , instead of fetching the avatar data everytime
+                 value[3].setAvatarImage(result.data.avatarImage.toString("base64"));
+            } catch (err) {
+                if(err){
+                    if(err.response){
+                         // go to the sign in page  
+                        setJwtTokenError(err.response.data);
+                    }
+                 
                 }
-            })
-             //assign the username result to the username context so we can show it in the message displayed in the front-end user
-             value[0].setUsername(result.data.username)
-             //also set the the avatarImage context so we use it to send messages , instead of fetching the avatar data everytime
-             value[3].setAvatarImage(result.data.avatarImage.toString("base64"));
-        } catch (err) {
-            if(err){
-                if(err.response){
-                     // go to the sign in page  
-                    setJwtTokenError(err.response.data);
-                }
-             
             }
         }
-       
+        
+        fetchData();
 
         return ()=>{
             socketRef.current.emit("disconnect");
@@ -152,8 +154,8 @@ const Chat = (props) => {
                         <OnlineCount socket={socketRef} />
                     </div>
                     
-                    <MessageContainer setMessageSent={setMessageSent} messageSent={messageSent} messagesDisplay={messagesDisplay} socketRef={socketRef} />
-                    <InputField setMessageSent={setMessageSent}   socket={socketRef} addMessageToChat={addMessageToChat} />
+                    <MessageContainer setMessagesCounter={setMessagesCounter} messagesCounter={messagesCounter} setMessageSent={setMessageSent} messageSent={messageSent} messagesDisplay={messagesDisplay} socketRef={socketRef} />
+                    <InputField setMessagesCounter={setMessagesCounter} messagesCounter={messagesCounter}  setMessageSent={setMessageSent} messageSent={messageSent}  socket={socketRef} addMessageToChat={addMessageToChat} />
                     
                 </section>
 

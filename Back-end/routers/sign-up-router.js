@@ -7,7 +7,7 @@ const connection=require("../database/mysql-connection");
 
 
 
-signUpRouter.post("/sign-up",userValidators.validateEmail,
+signUpRouter.post("/api/sign-up",userValidators.validateEmail,
 userValidators.validateUsername,
 userValidators.validatePassword,(req,res)=>{
        

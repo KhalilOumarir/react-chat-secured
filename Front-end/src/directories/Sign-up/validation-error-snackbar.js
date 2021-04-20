@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from "react";
-import Button from "@material-ui/core/Button";
+import React, {  useState } from "react";
+
 import Snackbar from "@material-ui/core/Snackbar";
-import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Close";
-import {makeStyles} from "@material-ui/styles";
+
 import MuiAlert from '@material-ui/lab/Alert';
 
 function Alert(props) {

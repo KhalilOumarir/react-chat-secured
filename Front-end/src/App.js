@@ -4,9 +4,9 @@ import Chat from "./directories/Chat/Chat";
 import SignIn from "./directories/Sign-in/Sign-in";
 import UserEdit from "./directories/user-edit/UserEdit";
 import './App.css';
-import {Route,Switch,NavLink} from "react-router-dom";
+import {Route,Switch} from "react-router-dom";
 import UsernameProvider from "./contexts/userData.context";
-import Axios from "axios";
+
 function App() {
 
 

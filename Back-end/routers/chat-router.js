@@ -24,7 +24,7 @@ router.post("/chat",(req,res)=>{
 })
 
 //check auth of user
-router.get("/chat",(req,res)=>{
+router.get("/api/chat",(req,res)=>{
     
     const authToken=req.headers.authtoken.split(" "); // so we can get the authtoken differently
     
